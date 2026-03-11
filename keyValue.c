@@ -5,9 +5,19 @@ pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
 void SET(char* key, char* value){
     pthread_mutex_lock(&lock);
+    Node* current = head;
+    while (current != NULL) {
+        if (strcmp(current->data.key, key) == 0) {
+            strcpy(current->data.value, value);
+            save_to_file();
+            pthread_mutex_unlock(&lock);
+            return;
+        }
+        current = current->next;
+    }
     Node* p = malloc(sizeof(Node));
-    strcpy(p-> data.key, key);
-    strcpy(p->data.value,value);
+    strcpy(p->data.key, key);
+    strcpy(p->data.value, value);
     p->next = head;
     head = p;
     save_to_file();
