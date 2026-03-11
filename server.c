@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/wait.h>
 #include "keyValue.h"
 
 Node* head = NULL;
@@ -28,36 +29,48 @@ int main() {
     listen(server_fd, 3);
     printf("Listening on port 8080...\n");
 
-    // accept one client
-    client_fd = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen);
-    printf("Client connected\n");
-
     while (1) {
-        memset(buffer, 0, 256);
-        int bytes = recv(client_fd, buffer, 256, 0);
-        if (bytes <= 0) {
-            printf("Client disconnected\n");
-            break;
-        }
-        printf("Received: %s\n", buffer);
+        client_fd = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen);
+        printf("Client connected\n");
 
-        char command[10], key[50], value[100];
-        memset(command, 0, 10);
-        memset(key, 0, 50);
-        memset(value, 0, 100);
+        pid_t pid = fork();
+        if (pid == 0) {
+            // child processes handles clients
+            close(server_fd);
+            while (1) {
+                memset(buffer, 0, 256);
+                int bytes = recv(client_fd, buffer, 256, 0);
+                if (bytes <= 0) {
+                    printf("Client disconnected\n");
+                    break;
+                }
+                printf("Received: %s\n", buffer);
+                load_from_file();
 
-        int parts = sscanf(buffer, "%s %s %s", command, key, value);
+                char command[10], key[50], value[100];
+                memset(command, 0, 10);
+                memset(key, 0, 50);
+                memset(value, 0, 100);
 
-        if (strcmp(command, "SET") == 0 && parts == 3) {
-            SET(key, value);
-            send(client_fd, "OK\n", 3, 0);
-        } else if (strcmp(command, "GET") == 0 && parts == 2) {
-            GET(key, client_fd);
-        } else if (strcmp(command, "DELETE") == 0 && parts == 2) {
-            DELETE(key);
-            send(client_fd, "OK\n", 3, 0);
+                int parts = sscanf(buffer, "%s %s %s", command, key, value);
+
+                if (strcmp(command, "SET") == 0 && parts == 3) {
+                    SET(key, value);
+                    send(client_fd, "OK\n", 3, 0);
+                } else if (strcmp(command, "GET") == 0 && parts == 2) {
+                    GET(key, client_fd);
+                } else if (strcmp(command, "DELETE") == 0 && parts == 2) {
+                    DELETE(key);
+                    send(client_fd, "OK\n", 3, 0);
+                } else {
+                    send(client_fd, "ERROR unknown command\n", 22, 0);
+                }
+            }
+            close(client_fd);
+            exit(0);
         } else {
-            send(client_fd, "ERROR unknown command\n", 22, 0);
+            // parent process goes back to accepting
+            close(client_fd);
         }
     }
 
