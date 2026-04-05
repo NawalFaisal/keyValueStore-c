@@ -9,25 +9,48 @@
 
 Node* head = NULL;
 
-int main() {
+int main(int argc, char* argv[]) {
     load_from_file();
     int server_fd, client_fd;
     struct sockaddr_in address;
     int addrlen = sizeof(address);
     char buffer[256];
+    int port;
+
+    // command line argument
+
+    if (argc == 1) {
+    port = 8080;}
+    
+    else if (argc == 2) {
+    port = atoi(argv[1]);
+    printf("port value is: %d\n", port);
+
+    if (port <= 0 || port > 65535) {
+        printf("Error: invalid port number\n");
+        return 1;
+    }
+
+    } else {
+    printf("Usage: ./server <port>\n");
+    return 1;
+    }
+
+
+
 
     // create socket
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
 
-    // bind to port 8080
+    // bind to port
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(8080);
+    address.sin_port = htons(port);
     bind(server_fd, (struct sockaddr*)&address, sizeof(address));
 
     // listen
     listen(server_fd, 3);
-    printf("Listening on port 8080...\n");
+    printf("Listening on port %d...\n", port);
 
     while (1) {
         client_fd = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen);
