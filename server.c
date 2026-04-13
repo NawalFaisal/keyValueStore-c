@@ -7,6 +7,9 @@
 #include <sys/wait.h>
 #include "keyValue.h"
 
+
+
+
 Node* head = NULL;
 
 int main(int argc, char* argv[]) {
@@ -14,19 +17,19 @@ int main(int argc, char* argv[]) {
     int server_fd, client_fd;
     struct sockaddr_in address;
     int addrlen = sizeof(address);
-    char buffer[256];
+    char buffer[MAX_BUFFER];
     int port;
 
     // command line argument
 
     if (argc == 1) {
-    port = 8080;}
+    port = define;}
     
     else if (argc == 2) {
     port = atoi(argv[1]);
     printf("port value is: %d\n", port);
 
-    if (port <= 0 || port > 65535) {
+    if (port <= 0 || port > MAX_PORT) {
         printf("Error: invalid port number\n");
         return 1;
     }
@@ -61,8 +64,8 @@ int main(int argc, char* argv[]) {
             // child processes handles clients
             close(server_fd);
             while (1) {
-                memset(buffer, 0, 256);
-                int bytes = recv(client_fd, buffer, 256, 0);
+                memset(buffer, 0, MAX_BUFFER);
+                int bytes = recv(client_fd, buffer, MAX_BUFFER, 0);
                 if (bytes <= 0) {
                     printf("Client disconnected\n");
                     break;
@@ -70,10 +73,10 @@ int main(int argc, char* argv[]) {
                 printf("Received: %s\n", buffer);
                 load_from_file();
 
-                char command[10], key[50], value[100];
-                memset(command, 0, 10);
-                memset(key, 0, 50);
-                memset(value, 0, 100);
+                char command[MAX_COMMAND], key[MAX_KEY], value[MAX_VALUE];
+                memset(command, 0, MAX_COMMAND);
+                memset(key, 0, MAX_KEY);
+                memset(value, 0, MAX_VALUE);
 
                 int parts = sscanf(buffer, "%s %s %s", command, key, value);
 

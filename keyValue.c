@@ -85,7 +85,7 @@ void SET_nosave(char* key, char* value) {
 void load_from_file() {
     FILE* f = fopen("store.txt", "r");
     if (f == NULL) return;
-    char key[50], value[100];
+    char key[MAX_KEY], value[MAX_VALUE];
     while (fscanf(f, "%s %s", key, value) == 2) {
         SET_nosave(key, value);
     }
