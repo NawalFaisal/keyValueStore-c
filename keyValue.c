@@ -5,16 +5,15 @@ pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
 void SET(char* key, char* value){
     pthread_mutex_lock(&lock);
-    Node* current = head;
-    while (current != NULL) {
+    for( Node* current = head; current != NULL; current = current-> next){
         if (strcmp(current->data.key, key) == 0) {
             strcpy(current->data.value, value);
             save_to_file();
             pthread_mutex_unlock(&lock);
             return;
         }
-        current = current->next;
     }
+
     Node* p = malloc(sizeof(Node));
     strcpy(p->data.key, key);
     strcpy(p->data.value, value);
@@ -26,15 +25,13 @@ void SET(char* key, char* value){
 
 void GET(char* key, int client_fd) {
     pthread_mutex_lock(&lock);
-    Node* current = head;
-    while (current != NULL) {
+    for ( Node* current = head; current != NULL; current = current -> next) {
         if (strcmp(current->data.key, key) == 0) {
             send(client_fd, current->data.value, strlen(current->data.value), 0);
             send(client_fd, "\n", 1, 0);
             pthread_mutex_unlock(&lock);
             return;
         }
-        current = current->next;
     }
     send(client_fd, "NOT FOUND\n", 10, 0);
     pthread_mutex_unlock(&lock);
@@ -42,10 +39,8 @@ void GET(char* key, int client_fd) {
 
 void DELETE(char* key) {
     pthread_mutex_lock(&lock);
-    Node* current = head;
     Node* previous = NULL;
-    while (current != NULL) 
-    {
+    for (Node* current = head; current != NULL; current = current -> next){
         if (strcmp(current->data.key, key) == 0) {
             if (previous == NULL) {
                 head = current->next;
@@ -58,7 +53,6 @@ void DELETE(char* key) {
             return;
         }
         previous = current;
-        current = current->next;
     }
     pthread_mutex_unlock(&lock);
 }
