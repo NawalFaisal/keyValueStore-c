@@ -30,7 +30,6 @@ typedef struct Node {
 
 extern Node* head;
 
-
 // declarations of functions.
 void SET(char* key, char* value);
 void GET(char* key, int client_fd);

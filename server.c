@@ -8,8 +8,6 @@
 #include "keyValue.h"
 
 
-
-
 Node* head = NULL;
 
 int main(int argc, char* argv[]) {
@@ -21,9 +19,8 @@ int main(int argc, char* argv[]) {
     int port;
 
     // command line argument
-
     if (argc == 1) {
-    port = define;}
+    port = DEFAULT_PORT;}
     
     else if (argc == 2) {
     port = atoi(argv[1]);
@@ -39,22 +36,32 @@ int main(int argc, char* argv[]) {
     return 1;
     }
 
-
-
-
     // create socket
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if(server_fd < 0){
+        printf("ERROR: Cannot Create Socket\n");
+        return 1;
+    }
 
     // bind to port
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(port);
-    bind(server_fd, (struct sockaddr*)&address, sizeof(address));
+
+    if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0){
+        printf("ERROR: Cannot bind to port\n");
+        return 1;
+    }
+
 
     // listen
-    listen(server_fd, 3);
+    if(listen(server_fd, BACKLOG) < 0){
+        printf("ERROR: Listening failed\n");
+        return 1;
+    }
     printf("Listening on port %d...\n", port);
 
+    
     while (1) {
         client_fd = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen);
         printf("Client connected\n");
