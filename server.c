@@ -8,8 +8,6 @@
 #include "keyValue.h"
 
 
-Node* head = NULL;
-
 int main(int argc, char* argv[]) {
     load_from_file();
     int server_fd, client_fd;
@@ -78,8 +76,7 @@ int main(int argc, char* argv[]) {
                     break;
                 }
                 printf("Received: %s\n", buffer);
-                load_from_file();
-
+                
                 char command[MAX_COMMAND], key[MAX_KEY], value[MAX_VALUE];
                 memset(command, 0, MAX_COMMAND);
                 memset(key, 0, MAX_KEY);

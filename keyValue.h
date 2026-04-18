@@ -14,6 +14,7 @@
 #define MAX_COMMAND 10
 #define DEFAULT_PORT 8080
 #define BACKLOG 3
+#define HASHSIZE 101
 
 //external variable declaration. 
 extern pthread_mutex_t lock;
@@ -28,7 +29,8 @@ typedef struct Node {
     struct Node* next;
 } Node;
 
-extern Node* head;
+// change this it should point to an array of node pointers
+extern Node* hashtab [HASHSIZE];
 
 // declarations of functions.
 void SET(char* key, char* value);
@@ -37,5 +39,6 @@ void DELETE(char* key);
 void save_to_file();
 void load_from_file();
 void SET_nosave(char* key, char* value);
+unsigned int hash(char* s);
 
 #endif
