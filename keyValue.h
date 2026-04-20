@@ -5,8 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include <time.h>
 
-//handle magic numbers
+/* magic numbers */
 #define MAX_BUFFER 256
 #define MAX_PORT 65535
 #define MAX_VALUE 100
@@ -16,7 +17,7 @@
 #define BACKLOG 3
 #define HASHSIZE 101
 
-//external variable declaration. 
+/* external variable declarations */
 extern pthread_mutex_t lock;
 
 typedef struct {
@@ -27,13 +28,14 @@ typedef struct {
 typedef struct Node {
     keyValue data;
     struct Node* next;
+    time_t created_at;
+    time_t expires_at;
 } Node;
 
-// change this it should point to an array of node pointers
-extern Node* hashtab [HASHSIZE];
+extern Node* hashtab[HASHSIZE];
 
-// declarations of functions.
-void SET(char* key, char* value);
+/* function declarations */
+void SET(char* key, char* value, int ttl);
 void GET(char* key, int client_fd);
 void DELETE(char* key);
 void save_to_file();

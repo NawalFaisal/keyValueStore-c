@@ -1,5 +1,5 @@
 all:
-	gcc keyValue.c server.c -o keyValue -lpthread
+	gcc -std=c99 main.c keyValue.c -o server -lpthread
 
 clean:
-	rm -f keyValue store.txt
+	rm -f server store.txt
